@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# Carrega variáveis de ambiente do arquivo .env
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -142,9 +146,9 @@ MESSAGE_TAGS = {
 
 # Configuração removida temporariamente devido a problemas de compatibilidade
 
-# OpenAI API Key
-OPENAI_API_KEY = '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'
+# OpenAI API Key - Carregada de variável de ambiente
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
 
-# Configurações da Evolution API para WhatsApp
-EVOLUTION_API_BASE_URL = 'https://evolution-api.your-domain.com'
-EVOLUTION_API_KEY = 'sua_api_key_aqui'  # Substitua pela chave real em produção
+# Configurações da Evolution API para WhatsApp - Carregadas de variáveis de ambiente
+EVOLUTION_API_BASE_URL = os.getenv('EVOLUTION_API_BASE_URL', 'https://evolution-api.your-domain.com')
+EVOLUTION_API_KEY = os.getenv('EVOLUTION_API_KEY', '')  # Carregada de variável de ambiente
