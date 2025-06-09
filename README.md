@@ -19,6 +19,13 @@ Sistema de chat com RAG (Retrieval-Augmented Generation) que permite treinar uma
 ## Instalação
 
 1. Clone o repositório
+2. Crie um arquivo `.env` na raiz do projeto com base no arquivo `.env.example`
+3. Configure suas credenciais de API no arquivo `.env`:
+   ```
+   OPENAI_API_KEY=sua_chave_da_api_openai
+   EVOLUTION_API_BASE_URL=url_da_sua_api_evolution
+   EVOLUTION_API_KEY=sua_chave_da_api_evolution
+   ```
 ```bash
 git clone https://github.com/seu-usuario/base-arcane.git
 cd base-arcane
