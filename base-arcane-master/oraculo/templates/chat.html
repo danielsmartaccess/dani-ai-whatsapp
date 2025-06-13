@@ -1,0 +1,198 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+
+{% block 'conteudo' %}
+    <main>
+        <header class="relative isolate bg-lime-200/80">
+            <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+                <div class="mx-auto flex max-w-2xl items-center justify-between gap-x-8 lg:mx-0 lg:max-w-none">
+                    <div class="flex items-center gap-x-6">
+                        <img src="{% static 'img/go.png' %}" alt="" class="w-1/3">
+                        <h1>
+                            <div class="text-sm/6 text-gray-500">Assistente Virtual</div>
+                            <div class="mt-1 text-base font-semibold text-gray-900">Chat com IA</div>
+                        </h1>
+                    </div>
+                    <div class="flex items-center gap-x-4 sm:gap-x-6">
+                        <a href="{% url 'treinar_ia' %}"
+                           type="button"
+                           class="hidden text-sm/6 font-semibold text-gray-900 sm:block">Treinamento da IA</a>
+                        <a href="{% url 'chat' %}"
+                           type="button"
+                           class="hidden text-sm/6 font-semibold text-gray-900 sm:block">Perguntar</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="px-4 md:px-0">
+            <div class="mx-auto bg-slate-50 mt-8 max-w-4xl px-4 py-16 sm:px-6 lg:px-8 border border-slate-200/60 rounded-md">
+    
+                <!-- Container principal empilhando tudo -->
+                <div class="flex flex-col gap-6" id="chat">
+
+                    <!-- Mensagem do assistente -->
+                    <div class="flex items-start gap-2.5">
+                        <img class="w-12 h-12 rounded-full" src="{% static 'img/dani_ai.png' %}" alt="Dani AI">
+                        <div class="flex flex-col gap-1 w-full max-w-[320px]">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                            <span class="text-sm font-semibold text-gray-900">Dani AI</span>
+                            <span class="text-sm font-normal text-gray-500">11:46</span>
+                            </div>
+                            <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-200 rounded-e-xl rounded-es-xl">
+                            <p class="text-sm font-normal py-2.5 text-gray-900">
+                                Olá, eu sou Dani AI, seu assistente virtual. Como posso ajudar você hoje?
+                            </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="px-4 md:px-0">
+            <div class="mx-auto bg-slate-50 mt-6 max-w-4xl px-4 py-4 sm:px-6 lg:px-8 border border-slate-200/60 rounded-md">
+                <form id="form-pergunta">
+                    <div class="flex items-center gap-4">
+                        <input 
+                        type="text" 
+                        name="pergunta"
+                        id="pergunta" 
+                        placeholder="Digite sua pergunta..." 
+                        class="flex-1 border border-slate-300 rounded-md px-4 py-2 text-sm text-gray-800 bg-white"
+                        >
+                        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        Enviar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+{% endblock 'conteudo' %}
+
+{% block 'scripts' %}
+<script>
+    // Espera o DOM carregar completamente antes de adicionar o event listener
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('form-pergunta').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const perguntaInput = document.getElementById('pergunta');
+        const pergunta = perguntaInput.value;
+        
+        // Verifica se a pergunta não está vazia
+        if (!pergunta.trim()) {
+            console.log("Pergunta vazia, ignorando envio");
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('pergunta', pergunta);
+        
+        // Limpa o campo de texto
+        perguntaInput.value = '';
+
+        try {
+            // Envia a pergunta para o servidor
+            const response = await fetch("{% url 'chat' %}", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+            const perguntaId = data.id;
+            console.log("ID salvo:", perguntaId);
+
+            // Obtém a hora atual formatada (HH:MM)
+            const agora = new Date();
+            const horaAtual = agora.getHours().toString().padStart(2, '0') + ':' + 
+                            agora.getMinutes().toString().padStart(2, '0');
+            
+            // Cria e adiciona a mensagem do usuário ao chat
+            const novaMensagem1 = document.createElement("div");
+            novaMensagem1.className = "flex items-start gap-2.5 justify-end";
+            novaMensagem1.innerHTML = `
+                <div class="flex flex-col gap-1 w-full max-w-[320px] text-right">
+                    <div class="flex items-center justify-end space-x-2 rtl:space-x-reverse">
+                    <span class="text-sm font-normal text-gray-500">${horaAtual}</span>
+                    <span class="text-sm font-semibold text-gray-900">Você</span>
+                    </div>
+                        <div class="flex flex-col leading-1.5 p-4 bg-lime-200 text-gray-900 rounded-s-xl rounded-ee-xl">
+                        <p class="text-sm font-normal py-2.5">
+                            ${pergunta}
+                        </p>
+                    </div>
+                </div>`;
+
+            document.getElementById("chat").appendChild(novaMensagem1);
+
+            // Cria e adiciona o elemento de resposta da Dani AI
+            const novaMensagem = document.createElement("div");
+            novaMensagem.className = "flex items-start gap-2.5";
+           
+            novaMensagem.innerHTML = `
+                <img class="w-12 h-12 rounded-full" src="{% static 'img/dani_ai.png' %}" alt="Dani AI">
+                <div class="flex flex-col gap-1 w-full max-w-[320px]">
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                        <span class="text-sm font-semibold text-gray-900">Dani AI</span>
+                        <span class="text-sm font-normal text-gray-500">${horaAtual}</span>
+                    </div>
+                    <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-200 rounded-e-xl rounded-es-xl">
+                        <p id="resposta-daniai-${perguntaId}" class="text-sm font-normal py-2.5 text-gray-900"></p>
+                    </div>
+                   <a href="/oraculo/ver_fontes/${perguntaId}" class="text-sm font-normal text-gray-500 dark:text-gray-400">Confira as fontes</a>
+                </div>
+            `;
+
+            document.getElementById("chat").appendChild(novaMensagem);
+
+            // Faz a requisição para o streaming da resposta
+            console.log("Enviando requisição de streaming para ID:", perguntaId);
+            const streamResponse = await fetch("{% url 'stream_response' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({ id_pergunta: perguntaId }),
+            });
+            
+            if (!streamResponse.ok) {
+                console.error("Erro na resposta do stream:", streamResponse.status, streamResponse.statusText);
+                // Adiciona mensagem de erro ao chat
+                document.getElementById(`resposta-daniai-${perguntaId}`).innerText = 
+                    `Erro ao obter resposta do servidor: ${streamResponse.status} ${streamResponse.statusText}`;
+                return;
+            }
+            
+            console.log("Resposta do stream recebida, iniciando leitura...");
+            const reader = streamResponse.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            const respostaElemento = document.getElementById(`resposta-daniai-${perguntaId}`);
+
+            // Processa o streaming de resposta e atualiza o DOM
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        console.log("Streaming concluído");
+                        break;
+                    }
+    
+                    const chunk = decoder.decode(value, { stream: true });
+                    console.log("Chunk recebido:", chunk);
+                    respostaElemento.innerText += chunk;
+                }
+            } catch (streamError) {
+                console.error("Erro durante a leitura do stream:", streamError);
+                respostaElemento.innerText += "\n\nErro ao processar a resposta. Por favor, tente novamente.";
+            }
+
+        } catch (error) {
+            console.error("Erro:", error);
+        }
+    });
+    });
+</script>
+{% endblock 'scripts' %}
