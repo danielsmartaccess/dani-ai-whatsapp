@@ -137,6 +137,15 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# URL padrão de login
+LOGIN_URL = '/usuarios/login/'
+
+# Permitir origens confiáveis para CSRF (incluso o preview e o localhost)
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:52821',
+    'http://127.0.0.1:8000',
+]
+
 from django.contrib.messages import constants
 
 MESSAGE_TAGS = {

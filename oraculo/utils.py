@@ -10,10 +10,15 @@ from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import FAISS
 from django.conf import settings
 from pathlib import Path
+import logging
+import os
 
 # Inicialização do scheduler para tarefas em background
 scheduler = BackgroundScheduler()
 scheduler.start()
+
+# Adicionando logger para debug
+logger = logging.getLogger(__name__)
 
 def html_para_texto_rag(html_str: str) -> str:
     """
@@ -448,3 +453,17 @@ def send_message_response(instance, sender, message_id=None):
             )
         except:
             pass
+
+def processar_pergunta(*args, **kwargs):
+    try:
+        logger.info("Iniciando o processamento da pergunta.")
+        
+        # Seu código existente aqui...
+        
+        logger.info(f"OPENAI_API_KEY carregada: {os.getenv('OPENAI_API_KEY')[:8]}...")
+        
+        # Resto do seu código...
+        
+    except Exception as e:
+        logger.error(f"Erro ao processar pergunta: {e}")
+        raise
