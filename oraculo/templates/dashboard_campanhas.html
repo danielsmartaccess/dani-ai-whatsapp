@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block 'conteudo' %}
+<div class="container mt-4">
+    <h2>Dashboard de Campanhas</h2>
+    {% for item in dados %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>{{ item.campanha.nome }}</strong> <span class="text-muted">({{ item.campanha.data_inicio|date:'d/m/Y H:i' }})</span>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Ordem</th>
+                            <th>Mensagem</th>
+                            <th>Total Agendado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for etapa in item.etapas %}
+                        <tr>
+                            <td>{{ etapa.ordem }}</td>
+                            <td>{{ etapa.conteudo }}</td>
+                            <td>{{ etapa.total_agendado }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>            </div>
+        </div>
+    {% empty %}
+        <p>Nenhuma campanha cadastrada.</p>
+    {% endfor %}
+</div>
+{% endblock 'conteudo' %}

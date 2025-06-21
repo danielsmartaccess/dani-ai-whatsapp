@@ -40,3 +40,37 @@ class Pergunta(models.Model):
 
     def __str__(self):
         return self.pergunta
+
+class EstagioFunil(models.Model):
+    nome = models.CharField(max_length=100)
+    ordem = models.PositiveIntegerField(default=0)
+    def __str__(self):
+        return self.nome
+
+class Contato(models.Model):
+    nome = models.CharField(max_length=255)
+    telefone = models.CharField(max_length=20)
+    email = models.EmailField(blank=True, null=True)
+    estagio_funil = models.ForeignKey(EstagioFunil, on_delete=models.SET_NULL, null=True, blank=True)
+    tags = models.CharField(max_length=255, blank=True)
+    ultima_interacao = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=50, default='ativo')
+    def __str__(self):
+        return f"{self.nome} ({self.telefone})"
+
+class Campanha(models.Model):
+    nome = models.CharField(max_length=255)
+    descricao = models.TextField(blank=True)
+    data_inicio = models.DateTimeField()
+    status = models.CharField(max_length=50, default='ativa')
+    def __str__(self):
+        return self.nome
+
+class SequenciaMensagem(models.Model):
+    campanha = models.ForeignKey(Campanha, on_delete=models.CASCADE)
+    ordem = models.IntegerField()
+    conteudo = models.TextField()
+    atraso = models.DurationField(help_text='Atraso após mensagem anterior')
+    condicao_envio = models.JSONField(default=dict, blank=True)
+    def __str__(self):
+        return f"{self.campanha.nome} - Passo {self.ordem}"

@@ -135,4 +135,32 @@ class WhatsAppAPI(BaseEvolutionAPI):
         path = f'/instance/logout/{instance}'
         return self._send_request(path, method='DELETE')
     
- 
+    def enviar_mensagem_massa(self, instance, contatos, mensagem):
+        """
+        Envia uma mensagem de texto para uma lista de contatos.
+        contatos: lista de números (strings)
+        mensagem: texto da mensagem
+        """
+        resultados = []
+        for numero in contatos:
+            resp = self.send_text_message(instance, numero, mensagem)
+            resultados.append({'numero': numero, 'status': resp.status_code})
+        return resultados
+
+    def agendar_mensagem(self, instance, to, message, send_at):
+        """
+        Agenda o envio de uma mensagem para um número em um horário futuro.
+        send_at: datetime.datetime
+        """
+        # Exemplo simples: você pode usar Celery para agendar de verdade
+        from oraculo.tasks import enviar_mensagem_agendada
+        enviar_mensagem_agendada.apply_async(args=[instance, to, message], eta=send_at)
+        return {'status': 'agendado', 'numero': to, 'horario': send_at}
+
+    def verificar_status_mensagem(self, instance, message_id):
+        """
+        Verifica o status de uma mensagem enviada
+        """
+        path = f'/message/status/{instance}/{message_id}'
+        return self._send_request(path, method='GET')
+

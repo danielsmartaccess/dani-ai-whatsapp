@@ -467,3 +467,15 @@ def processar_pergunta(*args, **kwargs):
     except Exception as e:
         logger.error(f"Erro ao processar pergunta: {e}")
         raise
+
+def gerar_mensagem_personalizada(contato, campanha, sequencia):
+    """
+    Gera uma mensagem personalizada para o contato, baseada no estágio do funil, histórico e template da campanha.
+    """
+    # Exemplo simples: pode ser expandido para usar LLM/RAG
+    contexto = f"Nome: {contato.nome}\nEstágio: {contato.estagio_funil}\nHistórico: {contato.ultima_interacao}\nCampanha: {campanha.nome}\n"
+    template = sequencia.conteudo
+    # Aqui você pode integrar com sua LLM/RAG para gerar a mensagem final
+    mensagem = template.replace("{{nome}}", contato.nome)
+    # Exemplo: adicionar mais variáveis/contexto conforme necessário
+    return mensagem

@@ -1,16 +1,19 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rolepermissions.checkers import has_permission
 from pathlib import Path
 from django.conf import settings
 from django.utils import timezone
+import csv
+from django.contrib import messages
 
-from .models import Treinamentos, Pergunta, DataTreinamento
+from .models import Treinamentos, Pergunta, DataTreinamento, Contato, EstagioFunil, Campanha, SequenciaMensagem
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import FAISS
 
 from .utils import sched_message_response
+from .forms import SequenciaMensagemForm
 
 def treinar_ia(request):
     """
@@ -195,7 +198,6 @@ def whatsapp_config(request):
         Renderiza o template de configuração
     """
     from .models import WhatsAppConfig
-    from django.contrib import messages
     
     # Verifica permissões
     if not has_permission(request.user, 'admin'):
@@ -444,3 +446,126 @@ def webhook_whatsapp(request):
     except Exception as e:
         print(f"Erro no webhook: {str(e)}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+def importar_contatos_csv(request):
+    """
+    View para importar contatos a partir de um arquivo CSV.
+    
+    Args:
+        request: Objeto de requisição HTTP
+    
+    Returns:
+        Renderiza o template de importação ou redireciona após importar
+    """
+    if request.method == 'POST' and request.FILES.get('csv_file'):
+        csv_file = request.FILES['csv_file']
+        decoded_file = csv_file.read().decode('utf-8').splitlines()
+        reader = csv.DictReader(decoded_file)
+        count = 0
+        for row in reader:
+            nome = row.get('nome', '').strip()
+            telefone = row.get('telefone', '').strip()
+            email = row.get('email', '').strip()
+            estagio_nome = row.get('estagio_funil', '').strip()
+            tags = row.get('tags', '').strip()
+            status = row.get('status', 'ativo').strip()
+            # Normalização simples de telefone
+            telefone = ''.join(filter(str.isdigit, telefone))
+            estagio = None
+            if estagio_nome:
+                estagio, _ = EstagioFunil.objects.get_or_create(nome=estagio_nome)
+            Contato.objects.create(
+                nome=nome,
+                telefone=telefone,
+                email=email or None,
+                estagio_funil=estagio,
+                tags=tags,
+                status=status
+            )
+            count += 1
+        messages.success(request, f'{count} contatos importados com sucesso!')
+        return redirect('importar_contatos')
+    return render(request, 'importar_contatos.html')
+
+def campanhas(request):
+    """
+    View para listagem de campanhas.
+    
+    Args:
+        request: Objeto de requisição HTTP
+    
+    Returns:
+        Renderiza o template com as campanhas
+    """
+    campanhas = Campanha.objects.all().order_by('-data_inicio')
+    return render(request, 'campanhas.html', {'campanhas': campanhas})
+
+def campanha_detalhe(request, campanha_id):
+    """
+    View para detalhamento de uma campanha específica.
+    
+    Args:
+        request: Objeto de requisição HTTP
+        campanha_id: ID da campanha
+    
+    Returns:
+        Renderiza o template de detalhe da campanha
+    """
+    campanha = Campanha.objects.get(id=campanha_id)
+    sequencias = SequenciaMensagem.objects.filter(campanha=campanha).order_by('ordem')
+    return render(request, 'campanha_detalhe.html', {'campanha': campanha, 'sequencias': sequencias})
+
+def sequencia_adicionar(request, campanha_id):
+    """
+    View para adicionar uma nova mensagem à sequência de uma campanha.
+    """
+    campanha = get_object_or_404(Campanha, id=campanha_id)
+    if request.method == 'POST':
+        form = SequenciaMensagemForm(request.POST)
+        if form.is_valid():
+            sequencia = form.save(commit=False)
+            sequencia.campanha = campanha
+            sequencia.save()
+            messages.success(request, 'Mensagem adicionada com sucesso!')
+            return redirect('campanha_detalhe', campanha_id=campanha.id)
+    else:
+        form = SequenciaMensagemForm()
+    return render(request, 'sequencia_form.html', {'form': form, 'campanha': campanha})
+
+
+def sequencia_editar(request, campanha_id, sequencia_id):
+    """
+    View para editar uma mensagem da sequência de uma campanha.
+    """
+    campanha = get_object_or_404(Campanha, id=campanha_id)
+    sequencia = get_object_or_404(SequenciaMensagem, id=sequencia_id, campanha=campanha)
+    if request.method == 'POST':
+        form = SequenciaMensagemForm(request.POST, instance=sequencia)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Mensagem atualizada com sucesso!')
+            return redirect('campanha_detalhe', campanha_id=campanha.id)
+    else:
+        form = SequenciaMensagemForm(instance=sequencia)
+    return render(request, 'sequencia_form.html', {'form': form, 'campanha': campanha, 'sequencia': sequencia})
+
+def dashboard_campanhas(request):
+    """
+    Dashboard de métricas das campanhas: total de mensagens agendadas por campanha e etapa.
+    """
+    from django.db.models import Count
+    campanhas = Campanha.objects.all().order_by('-data_inicio')
+    dados = []
+    for campanha in campanhas:
+        sequencias = SequenciaMensagem.objects.filter(campanha=campanha).order_by('ordem')
+        etapas = []
+        for seq in sequencias:
+            # Exemplo: contar agendamentos (pode ser expandido para entregas, respostas, etc)
+            # Aqui, apenas simula quantidade por etapa
+            etapas.append({
+                'ordem': seq.ordem,
+                'conteudo': seq.conteudo[:40] + ('...' if len(seq.conteudo) > 40 else ''),
+                'total_agendado': 0  # Placeholder, expandir conforme tracking real
+            })
+        dados.append({'campanha': campanha, 'etapas': etapas})
+    return render(request, 'dashboard_campanhas.html', {'dados': dados})
