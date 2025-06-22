@@ -5,12 +5,33 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <title>Oráculo AI</title>
+        <style>
+          body { background: linear-gradient(135deg, #e8f5e9 0%, #f0fdf4 100%); }
+        </style>
     </head>
-    <body>
-        {% block 'conteudo' %}
-        {% endblock 'conteudo' %}
-        
-        {% block 'scripts' %}
-        {% endblock 'scripts' %}
+    <body class="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-white">
+        <nav class="bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-400 shadow-lg p-4 mb-6">
+          <div class="container mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              {% comment %} <img src="{% static 'img/dani_ai.png' %}" alt="Dani AI" class="max-w-[80px] w-auto h-10 object-contain rounded-md shadow" style="background:rgba(255,255,255,0.7);padding:2px;"> {% endcomment %}
+              {% comment %} <img src="{% static 'img/go.png' %}" alt="Marca Go" class="max-w-[120px] w-auto h-12 object-contain rounded-md shadow" style="background:rgba(255,255,255,0.7);padding:2px;"> {% endcomment %}
+              <span class="text-2xl font-bold text-white tracking-tight drop-shadow">Oráculo AI</span>
+            </div>
+            <ul class="flex space-x-6">
+              <li><a href="/" class="text-white hover:text-yellow-300 font-semibold transition">Início</a></li>
+              <li><a href="{% url 'treinar_ia' %}" class="text-white hover:text-yellow-300 font-semibold transition">Treinar IA</a></li>
+              <li><a href="{% url 'chat' %}" class="text-white hover:text-yellow-300 font-semibold transition">Chat</a></li>
+              <li><a href="{% url 'dashboard_campanhas' %}" class="text-white hover:text-yellow-300 font-semibold transition">Dashboard</a></li>
+              <li><a href="{% url 'campanhas' %}" class="text-white hover:text-yellow-300 font-semibold transition">Campanhas</a></li>
+              <li><a href="{% url 'importar_contatos' %}" class="text-white hover:text-yellow-300 font-semibold transition">Importar Contatos</a></li>
+            </ul>
+          </div>
+        </nav>
+        <main class="container mx-auto px-2 md:px-0">
+        {% block conteudo %}
+        {% endblock conteudo %}
+        </main>
+        {% block scripts %}
+        {% endblock scripts %}
     </body>
 </html>

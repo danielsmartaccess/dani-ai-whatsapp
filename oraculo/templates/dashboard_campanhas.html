@@ -1,34 +1,102 @@
 {% extends 'base.html' %}
-{% block 'conteudo' %}
-<div class="container mt-4">
-    <h2>Dashboard de Campanhas</h2>
-    {% for item in dados %}
-        <div class="card mb-4">
-            <div class="card-header">
-                <strong>{{ item.campanha.nome }}</strong> <span class="text-muted">({{ item.campanha.data_inicio|date:'d/m/Y H:i' }})</span>
-            </div>
-            <div class="card-body">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Ordem</th>
-                            <th>Mensagem</th>
-                            <th>Total Agendado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for etapa in item.etapas %}
-                        <tr>
-                            <td>{{ etapa.ordem }}</td>
-                            <td>{{ etapa.conteudo }}</td>
-                            <td>{{ etapa.total_agendado }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>            </div>
+{% block conteudo %}
+<div class="container mx-auto mt-8 px-4">
+    <h2 class="text-2xl font-bold mb-6 text-emerald-800">Dashboard de Campanhas</h2>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center border-t-4 border-emerald-400">
+            <span class="text-gray-500 text-sm">Campanhas Ativas</span>
+            <span class="text-3xl font-bold text-emerald-600">{{ kpis.campanhas_ativas|default:0 }}</span>
         </div>
-    {% empty %}
-        <p>Nenhuma campanha cadastrada.</p>
-    {% endfor %}
+        <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center border-t-4 border-green-400">
+            <span class="text-gray-500 text-sm">Mensagens Enviadas</span>
+            <span class="text-3xl font-bold text-green-600">{{ kpis.mensagens_enviadas|default:0 }}</span>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center border-t-4 border-yellow-400">
+            <span class="text-gray-500 text-sm">Taxa de Resposta</span>
+            <span class="text-3xl font-bold text-yellow-500">{{ kpis.taxa_resposta|default:"0%" }}</span>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center border-t-4 border-emerald-200">
+            <span class="text-gray-500 text-sm">Contatos Importados</span>
+            <span class="text-3xl font-bold text-emerald-400">{{ kpis.contatos_importados|default:0 }}</span>
+        </div>
+    </div>
+
+    <!-- Gráfico de desempenho (exemplo com Chart.js) -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8 border border-emerald-100">
+        <h3 class="text-lg font-semibold mb-4 text-emerald-700">Desempenho das Campanhas</h3>
+        <canvas id="graficoCampanhas" height="80"></canvas>
+    </div>
+
+    <!-- Listagem de campanhas -->
+    <div class="bg-white rounded-lg shadow p-6 border border-emerald-100">
+        <h3 class="text-lg font-semibold mb-4 text-emerald-700">Campanhas Recentes</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-emerald-100 text-sm">
+                <thead class="bg-emerald-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left font-semibold text-emerald-700">Nome</th>
+                        <th class="px-4 py-2 text-left font-semibold text-emerald-700">Início</th>
+                        <th class="px-4 py-2 text-left font-semibold text-emerald-700">Status</th>
+                        <th class="px-4 py-2 text-left font-semibold text-emerald-700">Mensagens</th>
+                        <th class="px-4 py-2 text-left font-semibold text-emerald-700">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    {% for item in dados %}
+                    <tr class="even:bg-emerald-50">
+                        <td class="px-4 py-2 font-medium">{{ item.campanha.nome }}</td>
+                        <td class="px-4 py-2">{{ item.campanha.data_inicio|date:'d/m/Y H:i' }}</td>
+                        <td class="px-4 py-2">
+                            {% if item.campanha.status == 'Ativa' %}
+                                <span class="inline-block px-2 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded">Ativa</span>
+                            {% else %}
+                                <span class="inline-block px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-700 rounded">{{ item.campanha.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2">{{ item.etapas|length }}</td>
+                        <td class="px-4 py-2">
+                            <a href="{% url 'campanha_detalhe' item.campanha.id %}" class="text-emerald-700 hover:underline font-semibold">Detalhes</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="py-2 text-center text-gray-400">Nenhuma campanha cadastrada.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-{% endblock 'conteudo' %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Exemplo de gráfico de linhas para desempenho das campanhas
+const ctx = document.getElementById('graficoCampanhas').getContext('2d');
+const graficoCampanhas = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ kpis.labels|safe }},
+        datasets: [{
+            label: 'Mensagens Enviadas',
+            data: {{ kpis.mensagens_por_dia|safe }},
+            borderColor: '#10B981',
+            backgroundColor: 'rgba(16,185,129,0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+        },
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+{% endblock scripts %}
+{% endblock conteudo %}

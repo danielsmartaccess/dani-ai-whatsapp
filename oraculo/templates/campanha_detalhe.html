@@ -1,37 +1,36 @@
 {% extends "base.html" %}
-{% block 'conteudo' %}
-<div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded shadow">
-    <h2 class="text-lg font-semibold mb-4 flex items-center justify-between">
+{% block conteudo %}
+<div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded shadow border-t-4 border-emerald-400">
+    <h2 class="text-lg font-semibold mb-4 flex items-center justify-between text-emerald-800">
         Detalhes da Campanha: {{ campanha.nome }}
-        <a href="/campanhas/" class="text-sm text-gray-500 hover:underline">Voltar</a>
+        <a href="{% url 'campanhas' %}" class="text-sm text-emerald-600 hover:underline">Voltar</a>
     </h2>
     <div class="mb-4">
         <b>Início:</b> {{ campanha.data_inicio|date:'d/m/Y H:i' }}<br>
         <b>Status:</b> {{ campanha.status }}<br>
         <b>Descrição:</b> {{ campanha.descricao }}
     </div>
-    <h3 class="text-base font-semibold mb-2 flex items-center justify-between">
+    <h3 class="text-base font-semibold mb-2 flex items-center justify-between text-emerald-700">
         Sequência de Mensagens
-        <a href="{% url 'sequencia_adicionar' campanha.id %}" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">Adicionar Mensagem</a>
+        <a href="{% url 'sequencia_adicionar' campanha.id %}" class="bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-700 text-sm font-semibold shadow">Adicionar Mensagem</a>
     </h3>
-    <table class="min-w-full divide-y divide-gray-300 text-sm mb-4">
-        <thead>
+    <table class="min-w-full divide-y divide-emerald-100 text-sm mb-4">
+        <thead class="bg-emerald-50">
             <tr>
-                <th class="py-2 text-left font-semibold text-gray-900">Ordem</th>
-                <th class="py-2 text-left font-semibold text-gray-900">Conteúdo</th>
-                <th class="py-2 text-left font-semibold text-gray-900">Atraso</th>
-                <th class="py-2 text-left font-semibold text-gray-900">Ações</th>
+                <th class="py-2 text-left font-semibold text-emerald-700">Ordem</th>
+                <th class="py-2 text-left font-semibold text-emerald-700">Conteúdo</th>
+                <th class="py-2 text-left font-semibold text-emerald-700">Atraso</th>
+                <th class="py-2 text-left font-semibold text-emerald-700">Ações</th>
             </tr>
         </thead>
         <tbody class="bg-white">
             {% for seq in sequencias %}
-            <tr class="even:bg-gray-50">
+            <tr class="even:bg-emerald-50">
                 <td class="py-2">{{ seq.ordem }}</td>
                 <td class="py-2">{{ seq.conteudo|truncatechars:60 }}</td>
                 <td class="py-2">{{ seq.atraso }}</td>
                 <td class="py-2">
-                    <a href="{% url 'sequencia_editar' campanha.id seq.id %}" class="text-blue-600 hover:underline">Editar</a>
-                    <!-- <a href="#" class="text-red-600 hover:underline ml-2">Remover</a> -->
+                    <a href="{% url 'sequencia_editar' campanha.id seq.id %}" class="text-emerald-700 hover:underline font-semibold">Editar</a>
                 </td>
             </tr>
             {% empty %}
@@ -39,4 +38,4 @@
             {% endfor %}
         </tbody>    </table>
 </div>
-{% endblock 'conteudo' %}
+{% endblock conteudo %}

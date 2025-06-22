@@ -15,6 +15,7 @@ Sistema de chat com RAG (Retrieval-Augmented Generation) que permite treinar uma
 - Django 5.2+
 - OpenAI API Key
 - Evolution API (para integração com WhatsApp)
+- Redis (para gerenciamento de filas com Celery)
 
 ## Instalação
 
@@ -25,6 +26,7 @@ Sistema de chat com RAG (Retrieval-Augmented Generation) que permite treinar uma
    OPENAI_API_KEY=sua_chave_da_api_openai
    EVOLUTION_API_BASE_URL=url_da_sua_api_evolution
    EVOLUTION_API_KEY=sua_chave_da_api_evolution
+   REDIS_URL=redis://localhost:6379/0
    ```
 ```bash
 git clone https://github.com/seu-usuario/base-arcane.git
@@ -64,6 +66,11 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+8. (Opcional) Inicie o worker do Celery em um terminal separado
+```bash
+celery -A seu_projeto worker --loglevel=info
+```
+
 ## Uso
 
 1. Acesse o admin em `http://localhost:8000/admin/` e faça login
@@ -85,6 +92,8 @@ Para ambientes de produção, recomenda-se:
 3. Configurar um certificado SSL
 4. Usar um banco de dados como PostgreSQL em vez de SQLite
 5. Executar o deploy com o script `deploy.sh`
+6. Configurar o Celery para produção, utilizando um broker como Redis ou RabbitMQ
+7. Garantir que as variáveis de ambiente estejam corretamente configuradas no servidor de produção
 
 ## Licença
 

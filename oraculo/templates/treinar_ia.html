@@ -2,90 +2,84 @@
 {% load static %}
 {% load permission_tags %}
 
-{% block 'conteudo' %}
-    <main>
-        <header class="relative isolate bg-lime-200/80">
-            <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-                <div class="mx-auto flex max-w-2xl items-center justify-between gap-x-8 lg:mx-0 lg:max-w-none">
-                    <div class="flex items-center gap-x-6">
-                        <img src="{% static 'img/go.png' %}" alt="" class="w-28">
-                        <h1>
-                            <div class="text-sm/6 text-gray-500">Upload</div>
-                            <div class="mt-1 text-base font-semibold text-gray-900">Treinamento da IA</div>
-                        </h1>
-                    </div>
-                    <div class="flex items-center gap-x-4 sm:gap-x-6">
-                        <a href="{% url 'treinar_ia' %}"
-                           type="button"
-                           class="hidden text-sm/6 font-semibold text-gray-900 sm:block">Treinamento da IA</a>
-                        <a href="{% url 'chat' %}"
-                           type="button"
-                           class="hidden text-sm/6 font-semibold text-gray-900 sm:block">Perguntar</a>
-                    </div>
-                </div>
+{% block conteudo %}
+<main>
+    <header class="relative isolate bg-gradient-to-r from-emerald-100 via-green-50 to-white rounded-lg shadow p-6 mb-8">
+        <div class="mx-auto max-w-4xl flex items-center justify-between gap-x-8">
+            <div class="flex items-center gap-x-4">
+                <img src="{% static '/static/img/go.png' %}" alt="Marca Go" class="max-w-[80px] w-auto h-10 object-contain rounded-md shadow" style="background:rgba(255,255,255,0.7);padding:2px;">
+                <h1>
+                    <div class="text-sm text-emerald-700 font-semibold">Upload</div>
+                    <div class="mt-1 text-xl font-bold text-emerald-900">Treinamento da IA</div>
+                </h1>
             </div>
-        </header>
-        <div class="mx-auto w-4/5 px-4 py-8 sm:px-6 lg:px-8"> <!-- Aproveitamento de 80% da tela -->
-            <!-- Upload -->
-            <div class="shadow-xs ring-1 ring-gray-900/5 rounded-lg bg-white p-8 mb-8"> <!-- padding aumentado -->
-                <form class="space-y-8" action="{% url 'treinar_ia' %}" method="POST" enctype='multipart/form-data'>
-                    {% csrf_token %}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-900">Site</label>
-                            <input type="text" name="site" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="seu_site.com.br">
-                        </div>
-                        <div>
-                            <label for="about" class="block text-sm font-medium text-gray-900">Conteúdo</label>
-                            <textarea name="conteudo" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Adicione aqui qualquer texto para treinamento da IA."></textarea>
-                        </div>
-                        <div>
-                            <label for="cover-photo" class="block text-sm font-medium text-gray-900">Documento</label>
-                            <input name="documento" type="file" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" accept=".pdf,.txt">
-                            <p class="text-xs text-gray-600 mt-1">PDF, TXT até 10MB</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-end">
-                        <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-base font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Treinar IA</button>
-                    </div>
-                </form>
-            </div>
-            <!-- Quadro de treinamentos -->
-            <div class="rounded-lg bg-gray-50 shadow-xs ring-1 ring-gray-900/5 p-6">
-                <h2 class="text-base font-semibold text-gray-700 mb-4">Histórico de Treinamentos</h2>
-                <table class="min-w-full divide-y divide-gray-300 text-sm">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="py-2 pr-2 pl-2 text-left font-semibold text-gray-900 sm:pl-2">Treinamento</th>
-                            <th scope="col" class="px-2 py-2 text-left font-semibold text-gray-900">Conteúdo</th>
-                            <th scope="col" class="px-2 py-2 text-left font-semibold text-gray-900">Fonte</th>
-                            <th scope="col" class="px-2 py-2 text-left font-semibold text-gray-900">Arquivo</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white">
-                        {% for treinamento in treinamentos %}
-                        <tr class="even:bg-gray-50">
-                            <td class="py-2 pr-2 pl-2 font-medium whitespace-nowrap text-gray-900 sm:pl-2">#{{ treinamento.id }}</td>
-                            <td class="px-2 py-2 whitespace-nowrap text-gray-500">
-                                {% if treinamento.conteudo %}
-                                <span class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-yellow-800 text-xs font-medium">{{ treinamento.conteudo|truncatechars:30 }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="px-2 py-2 whitespace-nowrap text-gray-500">
-                                {% if treinamento.site %}
-                                <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-blue-800 text-xs font-medium">{{ treinamento.site|truncatechars:25 }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="px-2 py-2 whitespace-nowrap">
-                                {% if treinamento.documento %}
-                                <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-800 text-xs font-medium">{{ treinamento.documento.name|truncatechars:25 }}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="flex items-center gap-x-4">
+                <a href="{% url 'treinar_ia' %}" class="text-emerald-700 font-semibold hover:underline">Treinamento da IA</a>
+                <a href="{% url 'chat' %}" class="text-emerald-700 font-semibold hover:underline">Perguntar</a>
             </div>
         </div>
-    </main>
-{% endblock 'conteudo' %}
+    </header>
+    <div class="mx-auto w-full max-w-4xl px-4 py-8">
+        <!-- Upload -->
+        <div class="shadow ring-1 ring-emerald-100 rounded-lg bg-white p-8 mb-8 border-t-4 border-emerald-400">
+            <form class="space-y-8" action="{% url 'treinar_ia' %}" method="POST" enctype='multipart/form-data'>
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div>
+                        <label class="block text-sm font-medium text-emerald-900">Site</label>
+                        <input type="text" name="site" class="mt-1 block w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" placeholder="seu_site.com.br">
+                    </div>
+                    <div>
+                        <label for="about" class="block text-sm font-medium text-emerald-900">Conteúdo</label>
+                        <textarea name="conteudo" rows="3" class="mt-1 block w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" placeholder="Adicione aqui qualquer texto para treinamento da IA."></textarea>
+                    </div>
+                    <div>
+                        <label for="cover-photo" class="block text-sm font-medium text-emerald-900">Documento</label>
+                        <input name="documento" type="file" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" accept=".pdf,.txt">
+                        <p class="text-xs text-gray-600 mt-1">PDF, TXT até 10MB</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end">
+                    <button type="submit" class="rounded-md bg-emerald-600 px-6 py-2 text-base font-semibold text-white shadow hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 transition">Treinar IA</button>
+                </div>
+            </form>
+        </div>
+        <!-- Quadro de treinamentos -->
+        <div class="rounded-lg bg-emerald-50 shadow ring-1 ring-emerald-100 p-6">
+            <h2 class="text-base font-bold text-emerald-800 mb-4">Histórico de Treinamentos</h2>
+            <table class="min-w-full divide-y divide-emerald-100 text-sm">
+                <thead class="bg-emerald-100">
+                    <tr>
+                        <th scope="col" class="py-2 pr-2 pl-2 text-left font-semibold text-emerald-700 sm:pl-2">Treinamento</th>
+                        <th scope="col" class="px-2 py-2 text-left font-semibold text-emerald-700">Conteúdo</th>
+                        <th scope="col" class="px-2 py-2 text-left font-semibold text-emerald-700">Fonte</th>
+                        <th scope="col" class="px-2 py-2 text-left font-semibold text-emerald-700">Arquivo</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    {% for treinamento in treinamentos %}
+                    <tr class="even:bg-emerald-50">
+                        <td class="py-2 pr-2 pl-2 font-medium whitespace-nowrap text-emerald-900 sm:pl-2">#{{ treinamento.id }}</td>
+                        <td class="px-2 py-2 whitespace-nowrap text-emerald-700">
+                            {% if treinamento.conteudo %}
+                            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-yellow-800 text-xs font-medium">{{ treinamento.conteudo|truncatechars:30 }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-2 py-2 whitespace-nowrap text-emerald-700">
+                            {% if treinamento.site %}
+                            <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-blue-800 text-xs font-medium">{{ treinamento.site|truncatechars:25 }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-2 py-2 whitespace-nowrap">
+                            {% if treinamento.documento %}
+                            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-800 text-xs font-medium">{{ treinamento.documento.name|truncatechars:25 }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock conteudo %}
