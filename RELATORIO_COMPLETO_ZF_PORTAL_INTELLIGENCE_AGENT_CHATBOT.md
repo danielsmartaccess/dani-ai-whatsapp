@@ -1,5 +1,6 @@
 # Relatório Completo: ZF Portal Intelligence Agent  
 ## Módulo: Chatbot Inteligente
+Daniel Steinbruch e Gabriel Caravantes
 
 ---
 
