@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from rolepermissions.checkers import has_permission
 from pathlib import Path
 from django.conf import settings
 from django.utils import timezone
@@ -26,10 +25,6 @@ def treinar_ia(request):
     Returns:
         Renderiza o template com os treinamentos ou redireciona após salvar
     """
-    # Verifica permissões
-    if not has_permission(request.user, 'treinar_ia'):
-        raise Http404()
-        
     if request.method == 'GET':
         # Carrega todos os treinamentos para exibir na interface
         treinamentos = Treinamentos.objects.all().order_by('-id')
@@ -199,10 +194,6 @@ def whatsapp_config(request):
     """
     from .models import WhatsAppConfig
     
-    # Verifica permissões
-    if not has_permission(request.user, 'admin'):
-        raise Http404()
-    
     # Obtém ou cria configuração
     config, created = WhatsAppConfig.objects.get_or_create(
         pk=1,
@@ -247,10 +238,6 @@ def whatsapp_status(request):
     """
     from .models import WhatsAppConfig
     from .wrapper_evolutionapi import WhatsAppAPI
-    
-    # Verifica permissões
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Não autorizado'}, status=401)
     
     config = WhatsAppConfig.get_active()
     if not config:
@@ -306,10 +293,6 @@ def whatsapp_qrcode(request):
     from .models import WhatsAppConfig
     from .wrapper_evolutionapi import WhatsAppAPI
     
-    # Verifica permissões
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Não autorizado'}, status=401)
-    
     config = WhatsAppConfig.get_active()
     if not config:
         return JsonResponse({
@@ -352,10 +335,6 @@ def whatsapp_disconnect(request):
     """
     from .models import WhatsAppConfig
     from .wrapper_evolutionapi import WhatsAppAPI
-    
-    # Verifica permissões
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Não autorizado'}, status=401)
     
     config = WhatsAppConfig.get_active()
     if not config:

@@ -56,26 +56,52 @@ cp .env.example .env
 python manage.py migrate
 ```
 
-6. Crie um superusuário
-```bash
-python manage.py createsuperuser
-```
-
-7. Inicie o servidor
-```bash
-python manage.py runserver
-```
-
-8. (Opcional) Inicie o worker do Celery em um terminal separado
+6. (Opcional) Inicie o worker do Celery em um terminal separado
 ```bash
 celery -A seu_projeto worker --loglevel=info
 ```
 
-## Uso
+## Como usar
 
-1. Acesse o admin em `http://localhost:8000/admin/` e faça login
-2. Vá para `http://localhost:8000/oraculo/treinar_ia` para adicionar documentos para treinamento
-3. Acesse `http://localhost:8000/oraculo/chat` para interagir com a IA
+1. Inicie o servidor com:
+
+   ```bash
+   python manage.py runserver
+   ```
+
+2. Crie e ative um ambiente virtual:
+
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+
+3. Instale as dependências:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Configure as variáveis de ambiente (opcional, se necessário):
+
+   ```bash
+   cp .env.example .env
+   # Edite o arquivo .env conforme necessário
+   ```
+
+5. Execute as migrações:
+
+   ```bash
+   python manage.py migrate
+   ```
+
+6. (Opcional) Inicie o worker do Celery em um terminal separado:
+
+   ```bash
+   celery -A core worker --loglevel=info
+   ```
+
+7. Acesse a aplicação em `http://localhost:8000/` e utilize livremente as páginas de treinamento e chat sem necessidade de login.
 
 ## Integração com WhatsApp
 

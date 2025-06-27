@@ -23,12 +23,12 @@ class WhatsAppConfig(models.Model):
         return cls.objects.filter(is_active=True).first()
 
 class Treinamentos(models.Model):
-    site = models.URLField()
-    conteudo = models.TextField()
-    documento = models.FileField(upload_to='documentos')
+    site = models.URLField(blank=True, null=True)
+    conteudo = models.TextField(blank=True, null=True)
+    documento = models.FileField(upload_to='documentos', blank=True, null=True)
 
     def __str__(self):
-        return self.site
+        return self.site or 'Treinamento #' + str(self.id)
 
 class DataTreinamento(models.Model):
     metadata = models.JSONField(null=True, blank=True)
